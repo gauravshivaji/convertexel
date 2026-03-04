@@ -22,20 +22,22 @@ if uploaded_file is not None:
     # read file
     if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
-
     else:
         df = pd.read_excel(uploaded_file)
 
     st.subheader("Original Data")
     st.dataframe(df.head())
 
-    # convert date column to proper format
+    # convert date column
     df["Date"] = pd.to_datetime(df["Date"])
+
+    # remove decimals
+    df["Close"] = df["Close"].round(0).astype("Int64")
 
     # pivot transformation
     pivot_df = df.pivot(index="Ticker", columns="Date", values="Close")
 
-    # reset index so ticker becomes column
+    # reset index
     pivot_df = pivot_df.reset_index()
 
     # convert date columns to string
@@ -62,7 +64,6 @@ if uploaded_file is not None:
     pivot_df.to_excel(excel_file, index=False)
 
     with open(excel_file, "rb") as f:
-
         st.download_button(
             label="Download Excel",
             data=f,
